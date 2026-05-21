@@ -52,13 +52,10 @@ A continuación, se integra el modelado visual de los Casos de Uso desarrollados
 
 ![Diagrama de Casos de Uso - Meycif](caso-uso.png)
 ![Diagrama de Casos de Uso - Meycif](casou_registar_clientes.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](caso-uso.png)
+![Diagrama de Casos de Uso - Meycif](casou_iniciar_seción.png)
+![Diagrama de Casos de Uso - Meycif](casou_registrar_venta.png)
+![Diagrama de Casos de Uso - Meycif](casou_generar_reporte.png)
+
 
 
 ### Descripcion de los Actores y Limites del Sistema
