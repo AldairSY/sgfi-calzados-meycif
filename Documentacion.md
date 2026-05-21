@@ -51,10 +51,10 @@ Las principales funcionalidades incluyen la autenticación de personal, la admin
 A continuación, se integra el modelado visual de los Casos de Uso desarrollados para el sistema, el cual define el alcance de las interacciones entre los usuarios operativos y la lógica del negocio:
 
 ![Diagrama de Casos de Uso - Meycif](caso-uso.png)
-![Diagrama de Casos de Uso - Meycif](casou_registar_clientes.png)
+![Diagrama de Casos de Uso - Meycif](casou_registrar_clientes.png)
 ![Diagrama de Casos de Uso - Meycif](casou_iniciar_seción.png)
 ![Diagrama de Casos de Uso - Meycif](casou_registrar_venta.png)
-![Diagrama de Casos de Uso - Meycif](casou_generar_reporte.png)
+![Diagrama de Casos de Uso - Meycif](casou_generar_reportes.png)
 
 
 
