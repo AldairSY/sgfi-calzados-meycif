@@ -13,9 +13,7 @@ El equipo tiene el repositorio configurado en GitHub, Git Flow activo, estructur
 | Rol | Integrante | GitHub |
 |---|---|---|
 | Product Owner | Aldair Sánchez | @AldairSY |
-| Scrum Master | Aldair Sánchez | @AldairSY |
-| Backend Dev | Aldair Sánchez | @AldairSY |
-| Frontend Dev | Aldair Sánchez | @AldairSY |
+| Scrum Master | Daniel Hinostroza | R01070f@upla.edu.pe |
 | QA / DevOps | Aldair Sánchez | @AldairSY |
 
 ## Stack Tecnológico
