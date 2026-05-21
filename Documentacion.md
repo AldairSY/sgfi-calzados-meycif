@@ -1,65 +1,141 @@
-# 📑 REPORTE DE AVANCE DE PROYECTO - SPRINT 1
+# REPORTE DE AVANCE DE PROYECTO - SPRINT 1
 
 ---
 
-## 🏢 CARÁTULA DEL ENTREGABLE
+## CARATULA DEL ENTREGABLE
 
-| INFORMACIÓN ACADÉMICA Y DEL PROYECTO | DETALLES ESPECÍFICOS |
+| INFORMACION ACADÉMICA Y DEL PROYECTO | DETALLES ESPECIFICOS |
 | :--- | :--- |
 | **Universidad** | Universidad Peruana Los Andes (UPLA) |
 | **Facultad / Escuela** | Facultad de Ingeniería / Escuela Profesional de Ingeniería de Sistemas |
 | **Ciclo Académico** | VI Ciclo |
 | **Curso** | Construcción de Software |
-| **Proyecto de Desarrollo** | Sistema de Gestión de Facturación e Inventario - Meycif |
-| **Empresa Beneficiaria** | Empresa de Calzados "Meycif" |
-| **Estudiante / Desarrollador** | Daniel |
-| **Rol en el Equipo Scrum** | Frontend Developer / Core Integrator |
-| **Fase Actual** | Sprint 1 - Especificación y Arquitectura Base |
-| **Fecha de Entrega** | Mayo de 2026 |
+| **Proyecto de Desarrollo** | Sistema de Gestión de Facturación para la Empresa de Calzados Meycif |
+| **Empresa Beneficiaria** | Empresa de Calzados Meycif |
+| **Presentado por** | Hinostroza Canchumanya Luis Daniel (R01070F)<br>Enciso Carbajal Jhon Ever (R01057C)<br>Aldair Ulises Sanchez Romero (R01133A) |
+| **Asesor** | Gordillo Flores Rafael |
+| **Sede / Ciudad** | Huancayo - Perú |
+| **Año** | 2026 |
 
 ---
 
-## 📌 1. INTRODUCCIÓN Y CONTEXTO DEL SPRINT
+## 1. INTRODUCCION
 
-Durante el inicio del Sprint 1, el objetivo principal del equipo fue establecer la arquitectura base del software y garantizar la sincronización absoluta de los entornos de desarrollo locales con el repositorio centralizado en GitHub administrado por el compañero Aldair.
+### 1.1 Alcance
+Este documento especifica los requisitos funcionales y no funcionales para el desarrollo del Sistema de Gestión de Facturación e Inventario para la Empresa de Calzados Meycif. El sistema abarca el control automatizado de stock, la gestión de ventas, emisión de comprobantes de pago y la seguridad en el acceso de usuarios de acuerdo a sus roles operativos dentro de la organización.
 
-Como desarrollador del equipo, mi enfoque inicial se centró en la preparación del entorno, la resolución de divergencias en el código base y la mitigación de conflictos de fusión (*Merge Conflicts*), asegurando la integridad de las ramas antes de iniciar con el despliegue de las interfaces gráficas en React.
+### 1.2 Personal Involucrado
+El desarrollo del proyecto está a cargo del equipo de estudiantes de Ingeniería de Sistemas de la UPLA, desempeñando roles dentro del marco de trabajo Scrum (Frontend, Backend, Core Integrator), bajo la supervisión académica del asesor del curso.
 
-Adicionalmente, se dio inicio al proceso de levantamiento de información y modelado de requisitos técnicos para el negocio de calzados **Meycif**, con la finalidad de traducir las necesidades de control de inventario y facturación en artefactos de ingeniería de software claros y legibles para todo el equipo de desarrollo.
+### 1.3 Definiciones, siglas y abreviaturas
+* **RF:** Requisito Funcional.
+* **RNF:** Requisito No Funcional.
+* **CU:** Caso de Uso.
+* **BD:** Base de Datos.
+* **Meycif:** Empresa comercializadora de calzado objeto del presente software.
 
 ---
 
-## 🗺️ 2. DIAGRAMA DE CASOS DE USO DEL SISTEMA
+## 2. DESCRIPCION GENERAL
+
+### 2.1 Perspectiva del producto
+El software se concibe como una aplicación web centralizada que interactúa de manera directa con un servidor backend y un motor de base de datos relacional. Permitirá sustituir los registros manuales por interfaces digitales integradas.
+
+### 2.2 Funcionalidad del producto
+Las principales funcionalidades incluyen la autenticación de personal, la administración detallada del catálogo de calzados (tallas, modelos, marcas), el control de existencias, la automatización del proceso de facturación y ventas directas en caja, y la consolidación de reportes administrativos.
+
+---
+
+## 3. DIAGRAMA DE CASOS DE USOS DEL SISTEMA
 
 A continuación, se integra el modelado visual de los Casos de Uso desarrollados para el sistema, el cual define el alcance de las interacciones entre los usuarios operativos y la lógica del negocio:
 
 ![Diagrama de Casos de Uso - Meycif](image_99a231.png)
 
-### 👥 Descripción de los Actores y Límites del Sistema:
+### Descripcion de los Actores y Limites del Sistema
 * **Administrador / Operador de Tienda:** Personal de la empresa Meycif encargado de interactuar con el sistema para realizar tareas diarias como la consulta de stock de zapatillas, el registro de ventas y la emisión de comprobantes de pago.
 * **Sistema (Servicios Backend):** Componente de software encargado de procesar las solicitudes de las interfaces, realizar las validaciones de seguridad pertinentes en la base de datos y mantener la persistencia de la información.
-* **Límite del Sistema:** Define el alcance del software de facturación e inventario, delimitando qué acciones requieren conexión obligatoria con los servicios del servidor.
+* **Limite del Sistema:** Define el alcance del software de facturación e inventario, delimitando qué acciones requieren conexión obligatoria con los servicios del servidor.
 
 ---
 
-## 📊 3. MATRIZ DE ESPECIFICACIÓN DEL CASO DE USO: LOGIN
+## 4. CATALOGO DE REQUISITOS DEL SISTEMA A DESARROLLAR
 
-Para detallar el comportamiento del sistema durante el control de accesos, se ha estructurado la siguiente matriz técnica para el módulo de autenticación:
+### 4.1 Requisitos Generales del Sistema
+* **Interfaces de usuario:** Diseño adaptativo enfocado en pantallas de escritorio para uso en puntos de venta.
+* **Interfaces de hardware:** Operación estándar sobre computadoras personales con periféricos básicos y lector de códigos de barras.
+* **Interfaces de comunicacion:** Transferencia segura de datos mediante el protocolo HTTP de manera local o en la nube.
 
-| Campo de Ingeniería | Especificación Técnica Detallada |
+### 4.2 Requisitos Funcionales del Sistema
+
+#### RF-01: Gestion de Usuarios y Autenticacion
+| Atributo | Detalle |
 | :--- | :--- |
-| **Caso de Uso** | **CU-01: Autenticación de Usuario (Login)** |
-| **Actores** | Operador / Administrador del Sistema |
-| **Propósito** | Validar la identidad de los empleados de la zapatería para restringir o permitir las funciones del sistema según su nivel de privilegio. |
-| **Precondiciones** | El usuario debe estar previamente registrado en la base de datos de Meycif y poseer un estado activo. |
-| **Flujo Básico (Normal)** | 1. El usuario abre la aplicación web y se dirige a la interfaz de inicio de sesión.<br>2. El sistema muestra los campos obligatorios de "Usuario" y "Contraseña".<br>3. El usuario digita sus credenciales correspondientes y presiona el botón "Iniciar Sesión".<br>4. El sistema cifra y envía las credenciales al backend para su validación contra la base de datos.<br>5. El sistema confirma la validez de los datos y redirige al usuario de forma segura al Dashboard principal. |
-| **Flujos Alternos / Excepciones** | **4a. Credenciales Inválidas o Incorrectas:**<br>- El sistema detecta que el usuario o la contraseña no coinciden con los registros.<br>- El sistema bloquea el acceso a las vistas internas del software.<br>- Se despliega un mensaje de alerta genérico: *"Usuario o contraseña incorrectos"*, manteniendo la vista de login limpia por seguridad. |
-| **Postcondiciones** | Se establece una sesión de usuario activa y segura en el navegador mediante el almacenamiento local de un token de autenticación. |
+| **Descripcion** | El sistema debe permitir a los empleados iniciar sesion mediante un formulario que valide sus credenciales para restringir las funciones del software segun el rol asignado. |
+| **Actores** | Administrador, Vendedor, Operador |
+| **Prioridad** | Alta |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. El usuario debe ingresar obligatoriamente un nombre de usuario y contraseña correctos.<br>2. Al fallar en la validacion, el sistema bloqueara el ingreso mostrando una alerta de seguridad genérica: "Usuario o contraseña incorrectos".<br>3. Al autenticarse con éxito, se generara un token de sesion que almacenara los permisos del rol en el navegador. |
+
+#### RF-02: Registro y Mantenimiento de Productos (Inventario)
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe permitir registrar, modificar, inactivar y consultar el catalogo de productos de la zapatería, incluyendo codigo, marca, modelo, talla, stock mínimo y precio de venta. |
+| **Actores** | Administrador, Operador |
+| **Prioridad** | Alta |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. No se permitira el registro de dos productos con el mismo codigo de barras o codigo interno.<br>2. El campo "Talla" debe aceptar valores numéricos validos para calzado.<br>3. El sistema debe emitir una alerta visual cuando el stock actual sea igual o menor al stock mínimo configurado. |
+
+#### RF-03: Control de Stock y Reabastecimiento
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe actualizar de manera automatica el inventario cada vez que se realice una venta o se registre un ingreso de mercadería por parte de los proveedores. |
+| **Actores** | Administrador, Operador |
+| **Prioridad** | Alta |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. Toda entrada de mercadería debe quedar vinculada a un documento de sustento (Guía de remision o factura del proveedor).<br>2. El sistema no permitira el egreso de inventario si la cantidad solicitada supera al stock físico disponible, emitiendo un mensaje de error. |
+
+#### RF-04: Gestion de Ventas y Facturacion Directa
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe permitir procesar las ventas en caja, seleccionando los calzados mediante el buscador o lector de barras, calculando subtotales, impuestos (IGV) y el monto total de la operacion. |
+| **Actores** | Vendedor, Administrador |
+| **Prioridad** | Alta |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. El sistema calculara de forma automatica el IGV (18%) sobre el valor de venta del producto.<br>2. Se bloqueara la confirmacion de la venta si el cliente no define el metodo de pago (Efectivo, Tarjeta o Transferencia). |
+
+#### RF-05: Emision de Comprobantes de Pago
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | Al finalizar una venta, el sistema debe generar e imprimir boletas o facturas electrónicas en formato estándar para ticketera, registrando la serie y correlativo correspondiente. |
+| **Actores** | Vendedor, Administrador |
+| **Prioridad** | Alta |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. Para la emision de facturas, el sistema obligara al ingreso de un RUC valido de 11 dígitos previamente consultado o registrado.<br>2. Cada comprobante debe guardar una correlatividad estricta por serie, impidiendo duplicados en el sistema. |
+
+#### RF-06: Consulta de Clientes y Proveedores
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe proveer un modulo para la busqueda y registro rápido de los datos de los clientes (DNI/RUC, nombre, telefono) y proveedores durante el flujo de venta o abastecimiento. |
+| **Actores** | Vendedor, Operador, Administrador |
+| **Prioridad** | Media |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. El ingreso de DNI debe contener exactamente 8 caracteres numéricos y el RUC debe contener exactamente 11 caracteres numéricos.<br>2. Al digitar el identificador del cliente registrado, el sistema autocompletara los datos de facturacion en la pantalla de ventas de forma instantánea. |
+
+#### RF-07: Apertura y Cierre de Caja (Arqueo)
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe permitir a los vendedores abrir el turno de caja registrando un saldo inicial de dinero en efectivo y realizar el arqueo al cierre de la jornada laboral. |
+| **Actores** | Vendedor, Administrador |
+| **Prioridad** | Media |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. No se podran registrar ventas en el sistema si la caja no ha sido previamente abierta para el turno actual.<br>2. El reporte de cierre detallara el monto estimado calculado por el software frente al monto físico real ingresado por el cajero, registrando las diferencias si existieran. |
+
+#### RF-08: Generacion de Reportes de Gestion Comercial
+| Atributo | Detalle |
+| :--- | :--- |
+| **Descripcion** | El sistema debe permitir consolidar los datos de las transacciones registradas para generar reportes cuantitativos (ingresos económicos y estadísticas de los productos más vendidos) estructurados por periodos diarios, semanales y mensuales. |
+| **Actores** | Administrador |
+| **Prioridad** | Media |
+| **Criterios de Aceptacion / Reglas de Negocio** | 1. El sistema debe bloquear de forma estricta el acceso al modulo de reportes si el usuario autenticado tiene el rol de "Vendedor".<br>2. Los datos de ingresos económicos y volumen de ventas generados en los reportes deben coincidir de forma exacta con la sumatoria aritmética de las boletas y facturas internas registradas en el rango de fechas consultado. |
 
 ---
 
-## 🏁 4. ESTADO DE LOS ENTREGABLES Y PRÓXIMOS PASOS
+## 5. REQUISITOS NO FUNCIONALES DEL SISTEMA (RNF)
 
-* **Sincronización del Repositorio:** Se concluyó con éxito la migración inicial de la documentación base, asegurando que la rama local `develop` se encuentre perfectamente alineada con el repositorio en la nube en GitHub.
-* **Consolidación de Requisitos:** Toda la especificación técnica de casos de uso y lógica del negocio para la empresa de calzados Meycif ha quedado centralizada en este documento para el control y auditoría del docente del curso.
-* **Fase de Codificación (Siguiente Paso):** Una vez aprobada la presente estructura por el equipo y la cátedra, se procederá con la inicialización del proyecto en React, instalando las dependencias base y maquetando las vistas del formulario de Login usando los componentes definidos en este Sprint.
+* **RNF-01 Seguridad:** Los datos de las contraseñas de los usuarios deben guardarse mediante algoritmos de cifrado unidireccional en el backend.
+* **RNF-02 Disponibilidad:** El sistema web debe garantizar un correcto despliegue local durante el horario comercial de la tienda de calzados.
+* **RNF-03 Usabilidad:** Las interfaces de facturacion deben completarse con el menor numero de clics posibles para agilizar la atencion en el punto de venta.
