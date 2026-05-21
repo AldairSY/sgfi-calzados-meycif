@@ -50,7 +50,7 @@ Las principales funcionalidades incluyen la autenticación de personal, la admin
 
 A continuación, se integra el modelado visual de los Casos de Uso desarrollados para el sistema, el cual define el alcance de las interacciones entre los usuarios operativos y la lógica del negocio:
 
-![Diagrama de Casos de Uso - Meycif](Diagrama de Casos de Uso - Meycif.png)
+![Diagrama de Casos de Uso - Meycif](caso-uso.png)
 
 ### Descripcion de los Actores y Limites del Sistema
 * **Administrador / Operador de Tienda:** Personal de la empresa Meycif encargado de interactuar con el sistema para realizar tareas diarias como la consulta de stock de zapatillas, el registro de ventas y la emisión de comprobantes de pago.
