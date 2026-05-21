@@ -62,3 +62,5 @@ sgfi-calzados-meycif/
 ├── package.json
 ├── package-lock.json
 └── server.js
+
+![Casos de Uso](docs/img/casos_uso.png)
