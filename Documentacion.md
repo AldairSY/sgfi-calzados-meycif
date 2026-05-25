@@ -15,6 +15,7 @@
 | **Presentado por** | Hinostroza Canchumanya Luis Daniel (R01070F)<br>Enciso Carbajal Jhon Ever (R01057C)<br>Aldair Ulises Sanchez Romero (R01133A) |
 | **Asesor** | Gordillo Flores Rafael |
 | **Sede / Ciudad** | Huancayo - Perú |
+| **Mes** | Mayo |
 | **Año** | 2026 |
 
 ---
