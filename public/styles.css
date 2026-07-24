@@ -911,3 +911,77 @@ ul {
     margin-left: 0;
   }
 }
+
+/* ==========================================================================
+   ESTILOS PARA NUEVOS MÓDULOS (ETIQUETAS, CONFIGURACIÓN, AUDITORÍA, BACKUPS)
+   ========================================================================== */
+.label-card-print {
+  width: 340px;
+  border: 2px solid #000000;
+  padding: 15px;
+  margin: 15px auto;
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 4px;
+}
+
+.label-title {
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.label-barcode {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  letter-spacing: 4px;
+  margin: 15px 0 5px 0;
+  font-weight: bold;
+  border: 1px solid #000;
+  padding: 5px 0;
+  background: #f8fafc;
+}
+
+.label-info {
+  font-size: 13px;
+  text-align: left;
+  margin-top: 10px;
+  border-top: 1px dashed #000000;
+  padding-top: 8px;
+}
+
+.label-info p {
+  margin-bottom: 3px;
+}
+
+.label-price {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 8px;
+  border-top: 1px solid #000000;
+  padding-top: 5px;
+}
+
+.no-print {
+  /* Clase de utilidad para ocultar botones en impresión */
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .modal-overlay {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: white !important;
+  }
+}
+

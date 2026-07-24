@@ -54,8 +54,13 @@ window.App = {
       'nav-customers': 'customers',
       'nav-suppliers': 'suppliers',
       'nav-sales': 'sales',
+      'nav-billing': 'billing',
+      'nav-labels': 'etiquetas',
       'nav-reports': 'reports',
-      'nav-users': 'users'
+      'nav-users': 'users',
+      'nav-audit': 'audit',
+      'nav-backup': 'backup',
+      'nav-config': 'config'
     };
 
     Object.keys(menuLinks).forEach(id => {
@@ -123,12 +128,37 @@ window.App = {
     document.getElementById('user-avatar-tag').textContent = user.nombre.charAt(0).toUpperCase();
 
     // Restricciones de Navegación según Rol
-    const adminElements = document.querySelectorAll('.admin-only');
-    if (user.rol === 'Administrador') {
-      adminElements.forEach(el => el.classList.remove('hidden'));
-    } else {
-      adminElements.forEach(el => el.classList.add('hidden'));
-    }
+    const allMenuItems = {
+      'nav-dashboard': ['Administrador', 'Vendedor', 'Almacenero'],
+      'nav-products': ['Administrador', 'Vendedor', 'Almacenero'],
+      'nav-stock': ['Administrador', 'Almacenero'],
+      'nav-customers': ['Administrador', 'Vendedor'],
+      'nav-suppliers': ['Administrador'],
+      'nav-sales': ['Administrador', 'Vendedor'],
+      'nav-billing': ['Administrador', 'Vendedor'],
+      'nav-labels': ['Administrador', 'Almacenero'],
+      'nav-reports-li': ['Administrador'],
+      'nav-users-li': ['Administrador'],
+      'nav-audit-li': ['Administrador'],
+      'nav-backup-li': ['Administrador'],
+      'nav-config-li': ['Administrador']
+    };
+
+    Object.keys(allMenuItems).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const allowedRoles = allMenuItems[id];
+        if (allowedRoles.includes(user.rol)) {
+          el.classList.remove('hidden');
+          const parentLi = el.closest('li');
+          if (parentLi) parentLi.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+          const parentLi = el.closest('li');
+          if (parentLi) parentLi.classList.add('hidden');
+        }
+      }
+    });
 
     // Cargar Dashboard por defecto
     this.renderView('dashboard');
@@ -137,9 +167,10 @@ window.App = {
   // Helper centralizado para peticiones fetch (Método api)
   api: async function(url, options = {}) {
     const headers = options.headers || {};
-    // Inyectar rol del usuario logueado en las cabeceras para validación del backend
+    // Inyectar rol y ID del usuario logueado en las cabeceras para validación y auditoría del backend
     if (this.currentUser) {
       headers['x-user-role'] = this.currentUser.rol;
+      headers['x-user-id'] = this.currentUser.id;
     }
     headers['Content-Type'] = 'application/json';
     
@@ -163,11 +194,30 @@ window.App = {
 
   // Navegar y renderizar un módulo del SPA
   renderView: function(viewName) {
-    // Validar autorización de rol administrador
-    if ((viewName === 'reports' || viewName === 'users') && this.currentUser && this.currentUser.rol !== 'Administrador') {
-      alert("Acceso Denegado: Su rol de Vendedor no cuenta con permisos para ver este módulo.");
-      this.renderView('dashboard');
-      return;
+    // Validar autorización de rol
+    const routePermissions = {
+      'dashboard': ['Administrador', 'Vendedor', 'Almacenero'],
+      'products': ['Administrador', 'Vendedor', 'Almacenero'],
+      'stock': ['Administrador', 'Almacenero'],
+      'customers': ['Administrador', 'Vendedor'],
+      'suppliers': ['Administrador'],
+      'sales': ['Administrador', 'Vendedor'],
+      'billing': ['Administrador', 'Vendedor'],
+      'etiquetas': ['Administrador', 'Almacenero'],
+      'reports': ['Administrador'],
+      'users': ['Administrador'],
+      'audit': ['Administrador'],
+      'backup': ['Administrador'],
+      'config': ['Administrador']
+    };
+
+    if (this.currentUser) {
+      const allowedRoles = routePermissions[viewName];
+      if (allowedRoles && !allowedRoles.includes(this.currentUser.rol)) {
+        alert(`Acceso Denegado: Su rol de ${this.currentUser.rol} no cuenta con permisos para ver este módulo.`);
+        this.renderView('dashboard');
+        return;
+      }
     }
 
     this.activeModule = viewName;
@@ -181,8 +231,13 @@ window.App = {
       'customers': 'nav-customers',
       'suppliers': 'nav-suppliers',
       'sales': 'nav-sales',
+      'billing': 'nav-billing',
+      'etiquetas': 'nav-labels',
       'reports': 'nav-reports',
-      'users': 'nav-users'
+      'users': 'nav-users',
+      'audit': 'nav-audit',
+      'backup': 'nav-backup',
+      'config': 'nav-config'
     };
     const activeEl = document.getElementById(activeNavMap[viewName]);
     if (activeEl) activeEl.classList.add('active');
@@ -194,9 +249,14 @@ window.App = {
       'stock': 'Control de Stock e Inventarios',
       'customers': 'Gestión de Clientes',
       'suppliers': 'Gestión de Proveedores',
-      'sales': 'Punto de Venta / Facturación',
+      'sales': 'Punto de Venta',
+      'billing': 'Registro de Comprobantes',
+      'etiquetas': 'Generar Etiquetas',
       'reports': 'Reportes Comerciales e Ingresos',
-      'users': 'Administración de Usuarios'
+      'users': 'Administración de Usuarios',
+      'audit': 'Logs de Auditoría',
+      'backup': 'Respaldar Base de Datos',
+      'config': 'Configuración del Sistema'
     };
     document.getElementById('page-title').textContent = titleMap[viewName] || 'Sistema Meycif';
 
@@ -212,7 +272,7 @@ window.App = {
         container.innerHTML = `<div class="error-msg">Ocurrió un error al cargar la vista: ${err.message}</div>`;
       }
     } else {
-      container.innerHTML = `<div class="error-msg">Módulo "${viewName}" en desarrollo.</div>`;
+      container.innerHTML = `<div class="error-msg">Módulo "${viewName}" en desarrollo o no registrado.</div>`;
     }
   },
 

@@ -98,6 +98,10 @@ window.App.registerModule("customers", {
               ? `<button class="btn btn-danger btn-sm" onclick="App.modules.customers.toggleStatus(${c.id}, 'Inactivo')">Inactivar</button>`
               : `<button class="btn btn-success btn-sm" onclick="App.modules.customers.toggleStatus(${c.id}, 'Activo')">Activar</button>`
             }
+            ${App.currentUser.rol === 'Administrador'
+              ? `<button class="btn btn-primary btn-sm" style="background-color: var(--accent-color); color: var(--primary-color);" onclick="App.modules.customers.viewPurchaseHistory(${c.id})">Historial</button>`
+              : ''
+            }
           </td>
         </tr>
       `;
@@ -304,6 +308,70 @@ window.App.registerModule("customers", {
       this.loadAndRenderTable();
     } catch (err) {
       alert("Error al cambiar estado del cliente: " + err.message);
+    }
+  },
+
+  // Ver historial de compras en un modal (HU-18)
+  viewPurchaseHistory: async function(customerId) {
+    try {
+      const sales = await App.fetchAPI('/api/sales');
+      const client = this.customersList.find(c => c.id === customerId);
+      const clientSales = sales.filter(s => s.cliente_id === customerId);
+      const config = await App.fetchAPI('/api/config').catch(() => null);
+      const moneda = config ? config.moneda : 'S/.';
+      
+      let html = '';
+      if (clientSales.length === 0) {
+        html = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">Este cliente no registra compras previas en el sistema.</div>`;
+      } else {
+        html = `
+          <div style="margin-bottom: 15px; font-size: 14px;">
+            <p><strong>Cliente:</strong> ${client ? client.nombres_razon_social : 'Desconocido'}</p>
+            <p><strong>Documento:</strong> ${client ? `${client.tipo_documento}: ${client.numero_documento}` : '-'}</p>
+          </div>
+          <div class="table-responsive">
+            <table class="custom-table" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Comprobante</th>
+                  <th style="text-align: right;">Total</th>
+                  <th style="text-align: center;">Estado</th>
+                  <th style="text-align: center;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        clientSales.forEach(s => {
+          const dateStr = new Date(s.fecha_venta).toLocaleString('es-PE');
+          const badge = s.estado === 'Anulado'
+            ? `<span class="badge badge-danger">Anulado</span>`
+            : `<span class="badge badge-success">Completada</span>`;
+            
+          html += `
+            <tr>
+              <td>${dateStr}</td>
+              <td><strong>${s.tipo_comprobante} MEY-${String(s.id).padStart(6, '0')}</strong></td>
+              <td style="text-align: right; font-weight: bold;">${moneda} ${s.total.toFixed(2)}</td>
+              <td style="text-align: center;">${badge}</td>
+              <td style="text-align: center;">
+                <button class="btn btn-secondary btn-sm" onclick="App.modules.billing.showInvoice(${s.id})">Ver PDF</button>
+              </td>
+            </tr>
+          `;
+        });
+        
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      
+      App.showModal("Historial de Compras", html);
+    } catch(err) {
+      alert("Error al cargar historial de compras: " + err.message);
     }
   }
 });

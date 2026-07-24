@@ -4,8 +4,12 @@
 
 window.App.registerModule("stock", {
   productsList: [],
+  movementsList: [],
+  usersList: [],
 
   render: async function(container) {
+    this.config = await App.fetchAPI('/api/config').catch(() => null);
+    
     let html = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
         <!-- Panel Izquierdo: Formulario de Registro de Movimiento de Stock -->
@@ -70,6 +74,28 @@ window.App.registerModule("stock", {
       <!-- Historial Completo de Movimientos (Auditoría) -->
       <div class="card">
         <h3 class="card-title">Historial de Movimientos de Stock (Log de Auditoría)</h3>
+        
+        <!-- Filtros de Historial (HU-09) -->
+        <div class="search-filter-bar" style="padding: 12px; margin-bottom: 15px; font-size: 13px; gap: 15px; align-items: center;">
+          <div style="flex: 1.5; min-width: 200px;">
+            <label for="log-filter-prod" style="font-weight: bold; display: block; margin-bottom: 4px;">Filtrar por Calzado</label>
+            <select id="log-filter-prod" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid var(--border-color);">
+              <option value="">Todos los calzados...</option>
+            </select>
+          </div>
+          <div style="flex: 1; min-width: 120px;">
+            <label for="log-filter-start" style="font-weight: bold; display: block; margin-bottom: 4px;">Desde Fecha</label>
+            <input type="date" id="log-filter-start" style="width: 100%; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color);">
+          </div>
+          <div style="flex: 1; min-width: 120px;">
+            <label for="log-filter-end" style="font-weight: bold; display: block; margin-bottom: 4px;">Hasta Fecha</label>
+            <input type="date" id="log-filter-end" style="width: 100%; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color);">
+          </div>
+          <div style="align-self: flex-end;">
+            <button class="btn btn-secondary btn-sm" id="btn-log-clear" style="padding: 7px 12px; height: 32px;">Limpiar Filtros</button>
+          </div>
+        </div>
+
         <div class="table-responsive" id="stock-log-container">
           <div class="loading-spinner">Cargando bitácora de movimientos...</div>
         </div>
@@ -86,14 +112,25 @@ window.App.registerModule("stock", {
       e.preventDefault();
       this.submitMovement();
     });
+
+    // Eventos de filtros de historial
+    document.getElementById('log-filter-prod').addEventListener('change', () => this.filterMovements());
+    document.getElementById('log-filter-start').addEventListener('change', () => this.filterMovements());
+    document.getElementById('log-filter-end').addEventListener('change', () => this.filterMovements());
+    document.getElementById('btn-log-clear').addEventListener('click', () => {
+      document.getElementById('log-filter-prod').value = '';
+      document.getElementById('log-filter-start').value = '';
+      document.getElementById('log-filter-end').value = '';
+      this.filterMovements();
+    });
   },
 
   // Cargar productos y bitácora de movimientos
   loadData: async function() {
     try {
       this.productsList = await App.fetchAPI('/api/products');
-      const movements = await App.fetchAPI('/api/stock/movements');
-      const users = await App.fetchAPI('/api/users').catch(() => []); // Admin only, handle fallback
+      this.movementsList = await App.fetchAPI('/api/stock/movements');
+      this.usersList = await App.fetchAPI('/api/users').catch(() => []); // Admin only, handle fallback
 
       // Población del Selector de Calzados (Solo productos activos)
       const select = document.getElementById('stock-prod-select');
@@ -105,6 +142,17 @@ window.App.registerModule("stock", {
           <option value="${p.id}">${p.marca} ${p.modelo} (${p.color}, Talla ${p.talla}) [Stock actual: ${p.stock}]</option>
         `;
       });
+
+      // Población del selector de filtros de calzados (HU-09)
+      const logSelect = document.getElementById('log-filter-prod');
+      if (logSelect) {
+        logSelect.innerHTML = '<option value="">Todos los calzados...</option>';
+        this.productsList.forEach(p => {
+          logSelect.innerHTML += `
+            <option value="${p.id}">${p.marca} ${p.modelo} (${p.color}, Talla ${p.talla})</option>
+          `;
+        });
+      }
 
       // Actualizar Estadísticas del almacén
       const totalStock = this.productsList.reduce((sum, p) => sum + p.stock, 0);
@@ -124,18 +172,43 @@ window.App.registerModule("stock", {
       `;
 
       // Renderizar el log de auditoría histórico
-      this.renderMovementsLog(movements, users);
+      this.filterMovements();
 
     } catch (err) {
       console.error("Error al cargar datos de inventarios:", err);
     }
   },
 
+  // Filtrar movimientos basándose en filtros de producto y fechas (HU-09)
+  filterMovements: function() {
+    const prodVal = document.getElementById('log-filter-prod').value;
+    const startVal = document.getElementById('log-filter-start').value;
+    const endVal = document.getElementById('log-filter-end').value;
+
+    let filtered = this.movementsList;
+
+    if (prodVal) {
+      filtered = filtered.filter(m => m.producto_id === parseInt(prodVal));
+    }
+
+    if (startVal) {
+      const startDate = new Date(startVal + 'T00:00:00');
+      filtered = filtered.filter(m => new Date(m.fecha_movimiento) >= startDate);
+    }
+
+    if (endVal) {
+      const endDate = new Date(endVal + 'T23:59:59');
+      filtered = filtered.filter(m => new Date(m.fecha_movimiento) <= endDate);
+    }
+
+    this.renderMovementsLog(filtered);
+  },
+
   // Renderizar la tabla de historial de auditoría
-  renderMovementsLog: function(movements, users) {
+  renderMovementsLog: function(movements) {
     const container = document.getElementById('stock-log-container');
     if (movements.length === 0) {
-      container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No se registran movimientos históricos en la bitácora.</div>`;
+      container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No se registran movimientos históricos que coincidan.</div>`;
       return;
     }
 
@@ -159,16 +232,13 @@ window.App.registerModule("stock", {
 
     movements.forEach(m => {
       const prod = this.productsList.find(p => p.id === m.producto_id);
-      const user = users.find(u => u.id === m.usuario_id);
+      const user = this.usersList.find(u => u.id === m.usuario_id);
       
       const typeBadge = m.tipo_movimiento === 'Ingreso'
         ? `<span class="badge badge-success">+ Ingreso</span>`
         : `<span class="badge badge-danger">- Salida</span>`;
 
-      const formattedDate = new Date(m.fecha_movimiento).toLocaleString('es-PE', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-      });
+      const formattedDate = new Date(m.fecha_movimiento).toLocaleString('es-PE');
 
       tableHtml += `
         <tr>

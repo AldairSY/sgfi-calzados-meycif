@@ -85,7 +85,9 @@ window.App.registerModule("users", {
 
       const roleBadge = u.rol === 'Administrador'
         ? `<span class="badge" style="background-color: rgba(197, 168, 128, 0.15); color: var(--primary-color); font-weight: bold;">Administrador</span>`
-        : `<span class="badge" style="background-color: #cbd5e1; color: var(--text-primary);">Vendedor</span>`;
+        : u.rol === 'Almacenero'
+          ? `<span class="badge" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success-color); font-weight: bold;">Almacenero</span>`
+          : `<span class="badge" style="background-color: #cbd5e1; color: var(--text-primary);">Vendedor</span>`;
 
       const formattedDate = new Date(u.fecha_creacion).toLocaleDateString('es-PE', {
         day: '2-digit', month: '2-digit', year: 'numeric'
@@ -142,7 +144,8 @@ window.App.registerModule("users", {
         <div class="form-group">
           <label for="usr-role">Rol / Nivel de Acceso</label>
           <select id="usr-role" required>
-            <option value="Vendedor">Vendedor (Acceso limitado a ventas y stock)</option>
+            <option value="Vendedor">Vendedor (Acceso a ventas, clientes y comprobantes)</option>
+            <option value="Almacenero">Almacenero (Acceso a stock, catálogos y etiquetas)</option>
             <option value="Administrador">Administrador (Acceso total al sistema)</option>
           </select>
         </div>
@@ -223,7 +226,8 @@ window.App.registerModule("users", {
         <div class="form-group">
           <label for="usr-role">Rol / Nivel de Acceso</label>
           <select id="usr-role" required ${u.id === App.currentUser.id ? 'disabled' : ''}>
-            <option value="Vendedor" ${u.rol === 'Vendedor' ? 'selected' : ''}>Vendedor (Acceso limitado a ventas y stock)</option>
+            <option value="Vendedor" ${u.rol === 'Vendedor' ? 'selected' : ''}>Vendedor (Acceso a ventas, clientes y comprobantes)</option>
+            <option value="Almacenero" ${u.rol === 'Almacenero' ? 'selected' : ''}>Almacenero (Acceso a stock, catálogos y etiquetas)</option>
             <option value="Administrador" ${u.rol === 'Administrador' ? 'selected' : ''}>Administrador (Acceso total al sistema)</option>
           </select>
         </div>

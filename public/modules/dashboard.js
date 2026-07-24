@@ -59,14 +59,14 @@ window.App.registerModule("dashboard", {
         <div class="card">
           <h3 class="card-title">Operaciones Rápidas</h3>
           <div class="quick-actions-list" style="display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn btn-primary" onclick="App.navigateTo('sales')">🛒 Nueva Venta</button>
-            ${isAdmin ? `<button class="btn btn-secondary" onclick="App.navigateTo('products')">👞 Registrar Calzado</button>` : ''}
-            <button class="btn btn-secondary" onclick="App.navigateTo('customers')">👥 Registrar Cliente</button>
+            ${(App.currentUser.rol === 'Administrador' || App.currentUser.rol === 'Vendedor') ? `<button class="btn btn-primary" onclick="App.navigateTo('sales')">🛒 Nueva Venta</button>` : ''}
+            ${(App.currentUser.rol === 'Administrador' || App.currentUser.rol === 'Almacenero') ? `<button class="btn btn-secondary" onclick="App.navigateTo('products')">👞 Registrar Calzado</button>` : ''}
+            ${(App.currentUser.rol === 'Administrador' || App.currentUser.rol === 'Vendedor') ? `<button class="btn btn-secondary" onclick="App.navigateTo('customers')">👥 Registrar Cliente</button>` : ''}
           </div>
           
           <div class="system-status-info" style="margin-top: 25px; font-size: 13px; color: var(--text-secondary);">
             <p><strong>Estado del Servidor:</strong> En ejecución local</p>
-            <p><strong>Base de Datos:</strong> database.json (Estable)</p>
+            <p><strong>Base de Datos:</strong> SQLite meycif.db (Estable)</p>
             <p><strong>Límite de SUNAT:</strong> Desconectado (Emisión interna)</p>
           </div>
         </div>

@@ -146,6 +146,7 @@ window.App.registerModule("sales", {
     try {
       this.productsList = await App.fetchAPI('/api/products');
       this.clientsList = await App.fetchAPI('/api/customers');
+      this.config = await App.fetchAPI('/api/config').catch(() => null);
       this.filterProducts();
     } catch (err) {
       console.error("Error al cargar ventas iniciales:", err);
@@ -187,13 +188,14 @@ window.App.registerModule("sales", {
     list.forEach(p => {
       const isAgotado = p.stock <= 0;
       const isLowStock = p.stock <= p.stock_minimo;
+      const moneda = this.config ? this.config.moneda : 'S/.';
 
       html += `
         <div class="sale-product-item" style="${isAgotado ? 'opacity: 0.6;' : ''}">
           <div class="sale-product-details">
             <h5><strong>${p.marca} ${p.modelo}</strong></h5>
             <p>Categoría: ${p.categoria} | Talla: <strong>${p.talla}</strong> | Color: ${p.color}</p>
-            <p style="font-weight: 600; color: var(--primary-color);">S/. ${p.precio.toFixed(2)}</p>
+            <p style="font-weight: 600; color: var(--primary-color);">${moneda} ${p.precio.toFixed(2)}</p>
             <span style="font-size: 11px; font-weight: 600; color: ${isAgotado ? 'var(--danger-color)' : isLowStock ? 'var(--warning-color)' : 'var(--success-color)'};">
               Stock actual: ${p.stock} uds ${isAgotado ? '(Agotado)' : isLowStock ? '(¡Stock Bajo!)' : ''}
             </span>
@@ -298,6 +300,7 @@ window.App.registerModule("sales", {
     this.cart.forEach(item => {
       const p = item.producto;
       const sub = item.cantidad * p.precio;
+      const moneda = this.config ? this.config.moneda : 'S/.';
 
       tableHtml += `
         <tr>
@@ -310,8 +313,8 @@ window.App.registerModule("sales", {
                    style="width: 50px; text-align: center; padding: 3px; font-size: 12px; border-radius: 4px;"
                    onchange="App.modules.sales.updateCartQuantity(${p.id}, this.value)">
           </td>
-          <td style="text-align: right;">S/. ${p.precio.toFixed(2)}</td>
-          <td style="text-align: right; font-weight: 600;">S/. ${sub.toFixed(2)}</td>
+          <td style="text-align: right;">${moneda} ${p.precio.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 600;">${moneda} ${sub.toFixed(2)}</td>
           <td style="text-align: center;">
             <button style="background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 14px;" 
                     onclick="App.modules.sales.removeFromCart(${p.id})">🗑️</button>
@@ -331,13 +334,10 @@ window.App.registerModule("sales", {
   // Cálculo automático de importes usando las fórmulas matemáticas requeridas (RF-06)
   updateTotals: function() {
     let subtotal = 0;
-    
-    // Subtotal = suma de los precios de los productos antes de descuento e IGV
     this.cart.forEach(item => {
       subtotal += item.cantidad * item.producto.precio;
     });
 
-    // Descuento = monto descontado configurado por el usuario
     const discountValInput = document.getElementById('sales-discount');
     let discount = parseFloat(discountValInput ? discountValInput.value : 0) || 0;
 
@@ -346,27 +346,22 @@ window.App.registerModule("sales", {
       if (discountValInput) discountValInput.value = 0;
     }
     
-    // El descuento no puede exceder al subtotal bruto
     if (discount > subtotal) {
       discount = subtotal;
       if (discountValInput) discountValInput.value = subtotal.toFixed(2);
     }
 
-    // Base imponible = Subtotal - Descuento
     const baseImponible = subtotal - discount;
-
-    // IGV = Base imponible x 0.18
-    const igv = baseImponible * 0.18;
-
-    // Total a pagar = Base imponible + IGV
+    const igvPercent = this.config ? this.config.igv : 18.0;
+    const igv = baseImponible * (igvPercent / 100);
     const total = baseImponible + igv;
+    const moneda = this.config ? this.config.moneda : 'S/.';
 
-    // Renderizar totales en la UI
-    document.getElementById('summary-subtotal').textContent = `S/. ${subtotal.toFixed(2)}`;
-    document.getElementById('summary-discount').textContent = `- S/. ${discount.toFixed(2)}`;
-    document.getElementById('summary-base').textContent = `S/. ${baseImponible.toFixed(2)}`;
-    document.getElementById('summary-igv').textContent = `S/. ${igv.toFixed(2)}`;
-    document.getElementById('summary-total').textContent = `S/. ${total.toFixed(2)}`;
+    document.getElementById('summary-subtotal').textContent = `${moneda} ${subtotal.toFixed(2)}`;
+    document.getElementById('summary-discount').textContent = `- ${moneda} ${discount.toFixed(2)}`;
+    document.getElementById('summary-base').textContent = `${moneda} ${baseImponible.toFixed(2)}`;
+    document.getElementById('summary-igv').textContent = `${moneda} ${igv.toFixed(2)}`;
+    document.getElementById('summary-total').textContent = `${moneda} ${total.toFixed(2)}`;
   },
 
   // Búsqueda de cliente por DNI o RUC (RF-07)

@@ -6,13 +6,14 @@ window.App.registerModule("products", {
   productsList: [],
 
   render: async function(container) {
-    const isAdmin = App.currentUser.rol === 'Administrador';
+    const canEdit = App.currentUser.rol === 'Administrador' || App.currentUser.rol === 'Almacenero';
+    this.config = await App.fetchAPI('/api/config').catch(() => null);
     
     let html = `
       <div class="search-filter-bar">
         <!-- Input de búsqueda por texto libre -->
         <div class="search-input-wrapper" style="min-width: 250px;">
-          <input type="text" id="prod-search-txt" placeholder="Buscar por modelo, marca o color..." style="height: 100%;">
+          <input type="text" id="prod-search-txt" placeholder="Buscar por SKU, modelo, marca o color..." style="height: 100%;">
         </div>
         
         <!-- Filtro por Talla -->
@@ -50,8 +51,8 @@ window.App.registerModule("products", {
 
         <button class="btn btn-secondary" id="btn-prod-clear">Limpiar Filtros</button>
 
-        <!-- Botón de Registro Exclusivo Admin -->
-        ${isAdmin ? `<button class="btn btn-primary" id="btn-prod-add" style="margin-left: auto;">👞 Registrar Calzado</button>` : ''}
+        <!-- Botón de Registro Exclusivo Admin y Almacenero -->
+        ${canEdit ? `<button class="btn btn-primary" id="btn-prod-add" style="margin-left: auto;">👞 Registrar Calzado</button>` : ''}
       </div>
 
       <div class="card">
@@ -80,7 +81,7 @@ window.App.registerModule("products", {
       this.filterProducts();
     });
 
-    if (isAdmin) {
+    if (canEdit) {
       document.getElementById('btn-prod-add').addEventListener('click', () => this.openAddModal());
     }
   },
@@ -106,8 +107,9 @@ window.App.registerModule("products", {
     const stockVal = document.getElementById('prod-filter-stock').value;
 
     const filtered = this.productsList.filter(p => {
-      // Búsqueda por texto (marca, modelo, color)
+      // Búsqueda por texto (código interno, marca, modelo, color)
       const matchesSearch = 
+        p.codigo_interno.toLowerCase().includes(searchTxt) ||
         p.marca.toLowerCase().includes(searchTxt) ||
         p.modelo.toLowerCase().includes(searchTxt) ||
         p.color.toLowerCase().includes(searchTxt);
@@ -135,7 +137,8 @@ window.App.registerModule("products", {
   // Renderizar la tabla de productos filtrados
   renderTable: function(list) {
     const container = document.getElementById('products-table-container');
-    const isAdmin = App.currentUser.rol === 'Administrador';
+    const canEdit = App.currentUser.rol === 'Administrador' || App.currentUser.rol === 'Almacenero';
+    const moneda = this.config ? this.config.moneda : 'S/.';
 
     if (list.length === 0) {
       container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No se encontraron calzados con los filtros seleccionados.</div>`;
@@ -146,6 +149,7 @@ window.App.registerModule("products", {
       <table class="custom-table">
         <thead>
           <tr>
+            <th>Código SKU</th>
             <th>Categoría</th>
             <th>Marca</th>
             <th>Modelo</th>
@@ -155,7 +159,7 @@ window.App.registerModule("products", {
             <th style="text-align: center;">Stock Mínimo</th>
             <th style="text-align: center;">Stock Actual</th>
             <th style="text-align: center;">Estado</th>
-            ${isAdmin ? `<th style="text-align: center;">Acciones</th>` : ''}
+            ${canEdit ? `<th style="text-align: center;">Acciones</th>` : ''}
           </tr>
         </thead>
         <tbody>
@@ -169,18 +173,19 @@ window.App.registerModule("products", {
 
       tableHtml += `
         <tr style="${isLowStock ? 'background-color: rgba(239, 68, 68, 0.04);' : ''}">
+          <td><code>${p.codigo_interno}</code></td>
           <td><strong>${p.categoria}</strong></td>
           <td>${p.marca}</td>
           <td>${p.modelo}</td>
           <td>${p.talla}</td>
           <td>${p.color}</td>
-          <td style="text-align: right; font-weight: 500;">S/. ${p.precio.toFixed(2)}</td>
+          <td style="text-align: right; font-weight: 500;">${moneda} ${p.precio.toFixed(2)}</td>
           <td style="text-align: center;">${p.stock_minimo}</td>
           <td style="text-align: center; font-weight: bold; ${isLowStock ? 'color: var(--danger-color);' : ''}">
             ${p.stock} ${isLowStock ? '⚠️' : ''}
           </td>
           <td style="text-align: center;">${statusBadge}</td>
-          ${isAdmin ? `
+          ${canEdit ? `
             <td style="text-align: center; white-space: nowrap;">
               <button class="btn btn-secondary btn-sm" onclick="App.modules.products.openEditModal(${p.id})">Editar</button>
               ${p.estado === 'Activo' 
@@ -207,6 +212,10 @@ window.App.registerModule("products", {
       <form id="product-form">
         <div class="form-row">
           <div class="form-group">
+            <label for="prod-sku">Código SKU / Interno</label>
+            <input type="text" id="prod-sku" placeholder="Ej. SKU-101" required>
+          </div>
+          <div class="form-group">
             <label for="prod-cat">Categoría</label>
             <select id="prod-cat" required>
               <option value="Urbano">Urbano</option>
@@ -215,15 +224,17 @@ window.App.registerModule("products", {
               <option value="Escolar">Escolar</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label for="prod-marca">Marca</label>
             <input type="text" id="prod-marca" placeholder="Ej. Nike, Adidas" required>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="prod-modelo">Modelo</label>
-          <input type="text" id="prod-modelo" placeholder="Ej. Air Force 1" required>
+          <div class="form-group">
+            <label for="prod-modelo">Modelo</label>
+            <input type="text" id="prod-modelo" placeholder="Ej. Air Force 1" required>
+          </div>
         </div>
 
         <div class="form-row">
@@ -275,6 +286,7 @@ window.App.registerModule("products", {
     errorEl.classList.add('hidden');
 
     const prodData = {
+      codigo_interno: document.getElementById('prod-sku').value.trim(),
       categoria: document.getElementById('prod-cat').value,
       marca: document.getElementById('prod-marca').value.trim(),
       modelo: document.getElementById('prod-modelo').value.trim(),
@@ -286,7 +298,12 @@ window.App.registerModule("products", {
       estado: "Activo"
     };
 
-    // Validar en cliente
+    // Validaciones en cliente
+    if (!prodData.codigo_interno) {
+      errorEl.textContent = "El código SKU es obligatorio.";
+      errorEl.classList.remove('hidden');
+      return;
+    }
     if (prodData.precio <= 0 || isNaN(prodData.precio)) {
       errorEl.textContent = "El precio debe ser un número positivo.";
       errorEl.classList.remove('hidden');
@@ -325,6 +342,10 @@ window.App.registerModule("products", {
       <form id="product-edit-form">
         <div class="form-row">
           <div class="form-group">
+            <label for="prod-sku">Código SKU / Interno</label>
+            <input type="text" id="prod-sku" value="${p.codigo_interno}" required>
+          </div>
+          <div class="form-group">
             <label for="prod-cat">Categoría</label>
             <select id="prod-cat" required>
               <option value="Urbano" ${p.categoria === 'Urbano' ? 'selected' : ''}>Urbano</option>
@@ -333,15 +354,17 @@ window.App.registerModule("products", {
               <option value="Escolar" ${p.categoria === 'Escolar' ? 'selected' : ''}>Escolar</option>
             </select>
           </div>
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
             <label for="prod-marca">Marca</label>
             <input type="text" id="prod-marca" value="${p.marca}" required>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="prod-modelo">Modelo</label>
-          <input type="text" id="prod-modelo" value="${p.modelo}" required>
+          <div class="form-group">
+            <label for="prod-modelo">Modelo</label>
+            <input type="text" id="prod-modelo" value="${p.modelo}" required>
+          </div>
         </div>
 
         <div class="form-row">
@@ -389,6 +412,7 @@ window.App.registerModule("products", {
     errorEl.classList.add('hidden');
 
     const prodData = {
+      codigo_interno: document.getElementById('prod-sku').value.trim(),
       categoria: document.getElementById('prod-cat').value,
       marca: document.getElementById('prod-marca').value.trim(),
       modelo: document.getElementById('prod-modelo').value.trim(),
@@ -398,6 +422,11 @@ window.App.registerModule("products", {
       stock_minimo: parseInt(document.getElementById('prod-stock-min').value)
     };
 
+    if (!prodData.codigo_interno) {
+      errorEl.textContent = "El código SKU es obligatorio.";
+      errorEl.classList.remove('hidden');
+      return;
+    }
     if (prodData.precio <= 0 || isNaN(prodData.precio)) {
       errorEl.textContent = "El precio debe ser un número positivo.";
       errorEl.classList.remove('hidden');

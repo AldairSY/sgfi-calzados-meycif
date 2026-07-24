@@ -1,5 +1,9 @@
 node_modules/
 .env
+meycif.db
+database.json
+backups/
+sgfi-calzados-meycif/
 .DS_Store
 npm-debug.log*
 .vscode/
