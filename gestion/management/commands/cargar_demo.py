@@ -33,15 +33,29 @@ class Command(BaseCommand):
             usuario.save()
             usuario.groups.set([grupos[rol]])
 
-        Cliente.objects.get_or_create(
-            numero_documento="12345678",
-            defaults={
-                "tipo_documento": Cliente.DNI,
-                "nombres_razon_social": "Carlos Mendoza Torres",
-                "telefono": "987654321",
-                "direccion": "Miraflores, Lima",
-            },
-        )
+        clientes = [
+            ("12345678", "Carlos Mendoza Torres", "987654321", "Miraflores, Lima"),
+            ("70000001", "Ana López Quispe", "900000001", "El Tambo, Huancayo"),
+            ("70000002", "Luis Ramos Castro", "900000002", "Chilca, Huancayo"),
+            ("70000003", "María Huamán Soto", "900000003", "San Carlos, Huancayo"),
+            ("70000004", "José Paredes Rojas", "900000004", "Pilcomayo, Huancayo"),
+            ("70000005", "Rosa Flores Díaz", "900000005", "Sapallanga, Huancayo"),
+            ("70000006", "Miguel Torres Vega", "900000006", "Concepción, Junín"),
+            ("70000007", "Carmen Salazar Peña", "900000007", "Jauja, Junín"),
+            ("70000008", "Diego Chávez León", "900000008", "La Oroya, Junín"),
+            ("70000009", "Patricia Ríos Meza", "900000009", "Tarma, Junín"),
+            ("70000010", "Jorge Espinoza Ruiz", "900000010", "Chupaca, Junín"),
+        ]
+        for documento, nombre, telefono, direccion in clientes:
+            Cliente.objects.get_or_create(
+                numero_documento=documento,
+                defaults={
+                    "tipo_documento": Cliente.DNI,
+                    "nombres_razon_social": nombre,
+                    "telefono": telefono,
+                    "direccion": direccion,
+                },
+            )
         Proveedor.objects.get_or_create(
             ruc="20556677881",
             defaults={
@@ -71,6 +85,6 @@ class Command(BaseCommand):
             )
         self.stdout.write(
             self.style.SUCCESS(
-                "Datos listos. Usuarios: admin, vendedor y almacenero."
+                "Datos listos: 3 usuarios, 11 clientes, 3 productos y 1 proveedor."
             )
         )
