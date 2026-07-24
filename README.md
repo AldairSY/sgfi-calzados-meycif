@@ -1,14 +1,39 @@
-# Sistema de Gestión de Facturación e Inventario para Calzados Meycif
+# Sistema de Gestión de Facturación e Inventario - Calzados Meycif (MeycifPro)
 
-Proyecto integrador desarrollado con **Python 3.13 y Django 5.2**, aplicando
-Scrum y el patrón técnico solicitado en clase:
+**Universidad Peruana Los Andes - Facultad de Ingeniería**  
+**Escuela Profesional de Ingeniería de Sistemas y Computación**  
+**Asignatura:** Construcción de Software (Ciclo IX)  
+**Docente:** Mg. Rafael Edwin Gordillo Flores  
 
-```text
-Models → Forms/Views → Templates/API
-```
+### Equipo de Ingeniería: PROYECTA FUTURO
+* **Enciso Carbajal Jhon Ever** (R01057C) - *Scrum Master & Developer*
+* **Hinostroza Canchumanya Luis Daniel** (R01070F) - *Product Owner*
+* **Sanchez Romero Aldair Ulises** (R01133A) - *Developer & Frontend Specialist*
 
-La implementación anterior en Node/Express se conserva como referencia. La
-versión evaluable del curso se ejecuta mediante `manage.py`.
+---
+
+## Stack Tecnológico
+* **Lenguaje:** Python 3.13
+* **Framework Web:** Django 5.x / 5.2
+* **Base de Datos:** SQLite3
+* **Frontend:** HTML5, CSS3, Bootstrap 5
+* **Librerías Adicionales:** ReportLab (Exportación PDF), Django REST Framework
+
+---
+
+## Instrucciones de Ejecución Local
+```bash
+# 1. Clonar el repositorio
+git clone <URL_DE_TU_REPOSITORIO>
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Aplicar migraciones
+python manage.py migrate
+
+# 4. Iniciar el servidor
+python manage.py runserver
 
 ## Funcionalidades
 
