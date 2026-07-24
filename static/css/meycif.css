@@ -7,6 +7,7 @@ body { margin:0; color:var(--ink); background:var(--paper); font:15px/1.5 Inter,
 nav { display:flex; gap:18px; flex:1; flex-wrap:wrap; }
 nav a,.logout button { color:#e9e5de; text-decoration:none; background:none; border:0; cursor:pointer; font:inherit; }
 nav a:hover,.logout button:hover { color:var(--gold); }
+.user-role { color:var(--gold); font-size:12px; white-space:nowrap; }
 .container { width:min(1180px,92vw); margin:36px auto; }
 .page-heading { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:24px; }
 h1 { margin:0; font:700 clamp(28px,4vw,44px)/1.1 Georgia,serif; }
@@ -32,6 +33,14 @@ th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacin
 .form-control,input,select { width:100%; padding:10px 12px; border:1px solid #cfc9bd; border-radius:6px; background:#fff; }
 input[type=checkbox] { width:auto; }
 .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+.search-bar { display:flex; gap:10px; margin-bottom:18px; }
+.search-bar input { max-width:420px; }
+.detail-row { padding:8px 12px; margin-bottom:8px; border:1px solid var(--line); border-radius:7px; background:#faf9f6; }
+.status-anulada { color:#a31225; font-weight:700; }
+.invoice { max-width:850px; margin:auto; }
+.invoice-head { display:flex; justify-content:space-between; gap:30px; border-bottom:2px solid var(--ink); margin-bottom:22px; padding-bottom:18px; }
+.print-only { display:none; }
+@media print { .topbar,.no-print,.message { display:none!important; } body { background:#fff; } .container { width:100%; margin:0; } .invoice { border:0; box-shadow:none; } .print-only { display:block; } }
 .message { margin-bottom:18px; padding:12px 16px; background:#e8f5e9; border-left:4px solid #35843c; }
 .error,.errorlist { color:#a31225; }
 .login-card { max-width:470px; margin:9vh auto; padding:38px; background:#fff; border-radius:12px; border-top:5px solid var(--brand); box-shadow:0 20px 60px #17212b18; }

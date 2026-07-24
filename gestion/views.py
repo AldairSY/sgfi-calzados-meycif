@@ -1,23 +1,43 @@
+import csv
+
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.db.models import F, Sum
-from django.http import JsonResponse
+from django.db.models import F, Q, Sum
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from .forms import (
+    AnulacionForm,
     ClienteForm,
+    DetalleVentaFormSet,
     MovimientoStockForm,
     ProductoForm,
     ProveedorForm,
+    UsuarioEditarForm,
+    UsuarioForm,
+    UsuarioPasswordForm,
     VentaForm,
 )
-from .models import Cliente, DetalleVenta, MovimientoStock, Producto, Proveedor, Venta
-from .services import registrar_movimiento, registrar_venta
+from .models import Auditoria, Cliente, DetalleVenta, MovimientoStock, Producto, Proveedor, Venta
+from .permissions import (
+    ADMINISTRADOR,
+    ALMACENERO,
+    VENDEDOR,
+    roles_requeridos,
+)
+from .services import (
+    anular_venta,
+    registrar_auditoria,
+    registrar_movimiento,
+    registrar_venta,
+)
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO, VENDEDOR)
 def dashboard(request):
     ventas = Venta.objects.filter(estado=Venta.COMPLETADA)
     return render(
@@ -35,13 +55,21 @@ def dashboard(request):
     )
 
 
-def _crud_lista(request, modelo, titulo, columnas, crear_url, editar_url):
+def _crud_lista(request, modelo, titulo, columnas, crear_url, editar_url, campos_busqueda):
+    objetos = modelo.objects.all()
+    busqueda = request.GET.get("q", "").strip()
+    if busqueda:
+        filtro = Q()
+        for campo in campos_busqueda:
+            filtro |= Q(**{f"{campo}__icontains": busqueda})
+        objetos = objetos.filter(filtro)
     return render(
         request,
         "gestion/lista.html",
         {
             "titulo": titulo,
-            "objetos": modelo.objects.all(),
+            "objetos": objetos,
+            "busqueda": busqueda,
             "columnas": columnas,
             "crear_url": crear_url,
             "editar_url": editar_url,
@@ -49,7 +77,7 @@ def _crud_lista(request, modelo, titulo, columnas, crear_url, editar_url):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO, VENDEDOR)
 def productos(request):
     return _crud_lista(
         request,
@@ -65,10 +93,11 @@ def productos(request):
         ],
         "producto_crear",
         "producto_editar",
+        ["codigo", "marca", "modelo", "categoria"],
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
 def clientes(request):
     return _crud_lista(
         request,
@@ -82,10 +111,11 @@ def clientes(request):
         ],
         "cliente_crear",
         "cliente_editar",
+        ["numero_documento", "nombres_razon_social"],
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO)
 def proveedores(request):
     return _crud_lista(
         request,
@@ -99,13 +129,20 @@ def proveedores(request):
         ],
         "proveedor_crear",
         "proveedor_editar",
+        ["ruc", "razon_social"],
     )
 
 
 def _guardar_formulario(request, form_class, titulo, volver, instance=None):
     form = form_class(request.POST or None, instance=instance)
     if request.method == "POST" and form.is_valid():
-        form.save()
+        objeto = form.save()
+        registrar_auditoria(
+            request.user,
+            titulo,
+            "Editar" if instance else "Crear",
+            str(objeto),
+        )
         messages.success(request, f"{titulo} guardado correctamente.")
         return redirect(volver)
     return render(
@@ -115,7 +152,7 @@ def _guardar_formulario(request, form_class, titulo, volver, instance=None):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO)
 def producto_form(request, pk=None):
     instance = get_object_or_404(Producto, pk=pk) if pk else None
     return _guardar_formulario(
@@ -123,13 +160,13 @@ def producto_form(request, pk=None):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
 def cliente_form(request, pk=None):
     instance = get_object_or_404(Cliente, pk=pk) if pk else None
     return _guardar_formulario(request, ClienteForm, "Cliente", "clientes", instance)
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO)
 def proveedor_form(request, pk=None):
     instance = get_object_or_404(Proveedor, pk=pk) if pk else None
     return _guardar_formulario(
@@ -137,7 +174,7 @@ def proveedor_form(request, pk=None):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, ALMACENERO)
 def inventario(request):
     form = MovimientoStockForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -160,30 +197,75 @@ def inventario(request):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
 def ventas(request):
     form = VentaForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
+    detalles = DetalleVentaFormSet(request.POST or None, prefix="detalles")
+    if request.method == "POST" and form.is_valid() and detalles.is_valid():
         try:
             venta = registrar_venta(
                 cliente=form.cleaned_data["cliente"],
-                producto_id=form.cleaned_data["producto"].id,
-                cantidad=form.cleaned_data["cantidad"],
+                items=[
+                    fila
+                    for fila in detalles.cleaned_data
+                    if fila and fila.get("producto") and fila.get("cantidad")
+                ],
                 tipo_comprobante=form.cleaned_data["tipo_comprobante"],
                 usuario=request.user,
             )
             messages.success(request, f"Venta {venta} registrada correctamente.")
-            return redirect("ventas")
+            return redirect("comprobante", pk=venta.pk)
         except ValidationError as error:
             form.add_error(None, error)
     return render(
         request,
         "gestion/ventas.html",
-        {"form": form, "ventas": Venta.objects.select_related("cliente", "usuario")[:50]},
+        {
+            "form": form,
+            "detalles": detalles,
+            "ventas": Venta.objects.select_related("cliente", "usuario")[:50],
+        },
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
+def comprobante(request, pk):
+    venta = get_object_or_404(
+        Venta.objects.select_related("cliente", "usuario").prefetch_related(
+            "detalles__producto"
+        ),
+        pk=pk,
+    )
+    return render(request, "gestion/comprobante.html", {"venta": venta})
+
+
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
+def venta_anular(request, pk):
+    venta = get_object_or_404(Venta, pk=pk)
+    form = AnulacionForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            anular_venta(
+                venta_id=venta.pk,
+                motivo=form.cleaned_data["motivo"],
+                usuario=request.user,
+            )
+            messages.success(request, f"Venta {venta} anulada; el stock fue restaurado.")
+            return redirect("ventas")
+        except ValidationError as error:
+            form.add_error(None, error)
+    return render(
+        request,
+        "gestion/formulario.html",
+        {
+            "form": form,
+            "titulo": f"Anular {venta}",
+            "volver": reverse("comprobante", args=[venta.pk]),
+        },
+    )
+
+
+@roles_requeridos(ADMINISTRADOR)
 def reportes(request):
     top_productos = (
         DetalleVenta.objects.filter(venta__estado=Venta.COMPLETADA)
@@ -207,7 +289,108 @@ def reportes(request):
     )
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR)
+def exportar_ventas_csv(request):
+    respuesta = HttpResponse(content_type="text/csv; charset=utf-8")
+    respuesta["Content-Disposition"] = 'attachment; filename="ventas_meycif.csv"'
+    respuesta.write("\ufeff")
+    writer = csv.writer(respuesta)
+    writer.writerow(["Comprobante", "Cliente", "Total", "Estado", "Fecha"])
+    for venta in Venta.objects.select_related("cliente"):
+        writer.writerow(
+            [
+                str(venta),
+                venta.cliente.nombres_razon_social,
+                venta.total,
+                venta.get_estado_display(),
+                venta.fecha.strftime("%d/%m/%Y %H:%M"),
+            ]
+        )
+    return respuesta
+
+
+@roles_requeridos(ADMINISTRADOR)
+def usuarios(request):
+    return render(
+        request,
+        "gestion/usuarios.html",
+        {"usuarios": get_user_model().objects.prefetch_related("groups").order_by("username")},
+    )
+
+
+def _asignar_rol(usuario, rol):
+    grupo, _ = Group.objects.get_or_create(name=rol)
+    usuario.groups.set([grupo])
+    usuario.is_superuser = rol == ADMINISTRADOR
+    usuario.is_staff = rol == ADMINISTRADOR
+    usuario.save()
+
+
+@roles_requeridos(ADMINISTRADOR)
+def usuario_crear(request):
+    form = UsuarioForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        usuario = form.save()
+        _asignar_rol(usuario, form.cleaned_data["rol"])
+        registrar_auditoria(request.user, "Usuarios", "Crear usuario", usuario.username)
+        messages.success(request, "Usuario creado correctamente.")
+        return redirect("usuarios")
+    return render(
+        request,
+        "gestion/formulario.html",
+        {"form": form, "titulo": "Nuevo usuario", "volver": reverse("usuarios")},
+    )
+
+
+@roles_requeridos(ADMINISTRADOR)
+def usuario_editar(request, pk):
+    usuario = get_object_or_404(get_user_model(), pk=pk)
+    form = UsuarioEditarForm(request.POST or None, instance=usuario)
+    if request.method == "POST" and form.is_valid():
+        usuario = form.save()
+        _asignar_rol(usuario, form.cleaned_data["rol"])
+        registrar_auditoria(request.user, "Usuarios", "Editar usuario", usuario.username)
+        messages.success(request, "Usuario actualizado correctamente.")
+        return redirect("usuarios")
+    return render(
+        request,
+        "gestion/formulario.html",
+        {"form": form, "titulo": "Editar usuario", "volver": reverse("usuarios")},
+    )
+
+
+@roles_requeridos(ADMINISTRADOR)
+def usuario_password(request, pk):
+    usuario = get_object_or_404(get_user_model(), pk=pk)
+    form = UsuarioPasswordForm(usuario, request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        registrar_auditoria(
+            request.user, "Usuarios", "Cambiar contraseña", usuario.username
+        )
+        messages.success(request, "Contraseña actualizada correctamente.")
+        return redirect("usuarios")
+    return render(
+        request,
+        "gestion/formulario.html",
+        {
+            "form": form,
+            "titulo": f"Cambiar contraseña de {usuario.username}",
+            "volver": reverse("usuarios"),
+        },
+    )
+
+
+@roles_requeridos(ADMINISTRADOR)
+def auditoria(request):
+    return render(
+        request,
+        "gestion/auditoria.html",
+        {"registros": Auditoria.objects.select_related("usuario")[:200]},
+    )
+
+
+@roles_requeridos(ADMINISTRADOR, ALMACENERO, VENDEDOR)
 def api_productos(request):
     data = list(
         Producto.objects.filter(activo=True).values(
@@ -217,7 +400,7 @@ def api_productos(request):
     return JsonResponse({"resultados": data})
 
 
-@login_required
+@roles_requeridos(ADMINISTRADOR, VENDEDOR)
 def api_ventas(request):
     data = list(
         Venta.objects.select_related("cliente").values(

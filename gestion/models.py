@@ -117,6 +117,8 @@ class Venta(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=2)
     estado = models.CharField(max_length=10, choices=ESTADOS, default=COMPLETADA)
     fecha = models.DateTimeField(auto_now_add=True)
+    fecha_anulacion = models.DateTimeField(null=True, blank=True)
+    motivo_anulacion = models.CharField(max_length=200, blank=True)
 
     class Meta:
         ordering = ["-fecha"]
@@ -144,3 +146,19 @@ class DetalleVenta(models.Model):
                 fields=["venta", "producto"], name="producto_unico_por_venta"
             )
         ]
+
+
+class Auditoria(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="auditorias"
+    )
+    modulo = models.CharField(max_length=50)
+    accion = models.CharField(max_length=80)
+    descripcion = models.CharField(max_length=250)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.fecha:%d/%m/%Y %H:%M} - {self.accion}"

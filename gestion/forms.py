@@ -1,6 +1,11 @@
 from django import forms
 
-from .models import Cliente, Producto, Proveedor
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import SetPasswordForm, UserCreationForm
+from django.forms import formset_factory
+
+from .models import Cliente, Producto, Proveedor, Venta
+from .permissions import ADMINISTRADOR, ALMACENERO, VENDEDOR
 
 
 class EstiloFormularioMixin:
@@ -63,6 +68,58 @@ class MovimientoStockForm(EstiloFormularioMixin, forms.Form):
 
 class VentaForm(EstiloFormularioMixin, forms.Form):
     cliente = forms.ModelChoiceField(queryset=Cliente.objects.filter(activo=True))
+    tipo_comprobante = forms.ChoiceField(choices=[("BOLETA", "Boleta"), ("FACTURA", "Factura")])
+
+
+class DetalleVentaForm(EstiloFormularioMixin, forms.Form):
     producto = forms.ModelChoiceField(queryset=Producto.objects.filter(activo=True))
     cantidad = forms.IntegerField(min_value=1)
-    tipo_comprobante = forms.ChoiceField(choices=[("BOLETA", "Boleta"), ("FACTURA", "Factura")])
+
+
+DetalleVentaFormSet = formset_factory(
+    DetalleVentaForm, extra=3, min_num=1, validate_min=True
+)
+
+
+class AnulacionForm(EstiloFormularioMixin, forms.Form):
+    motivo = forms.CharField(max_length=200, widget=forms.Textarea(attrs={"rows": 3}))
+
+
+class UsuarioForm(EstiloFormularioMixin, UserCreationForm):
+    rol = forms.ChoiceField(
+        choices=[
+            (ADMINISTRADOR, "Administrador"),
+            (VENDEDOR, "Vendedor"),
+            (ALMACENERO, "Almacenero"),
+        ]
+    )
+
+    class Meta(UserCreationForm.Meta):
+        model = get_user_model()
+        fields = ("username", "first_name", "last_name", "email", "rol")
+
+
+class UsuarioEditarForm(EstiloFormularioMixin, forms.ModelForm):
+    rol = forms.ChoiceField(
+        choices=[
+            (ADMINISTRADOR, "Administrador"),
+            (VENDEDOR, "Vendedor"),
+            (ALMACENERO, "Almacenero"),
+        ]
+    )
+
+    class Meta:
+        model = get_user_model()
+        fields = ("username", "first_name", "last_name", "email", "is_active", "rol")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            grupo = self.instance.groups.first()
+            self.fields["rol"].initial = (
+                "Administrador" if self.instance.is_superuser else grupo.name if grupo else ""
+            )
+
+
+class UsuarioPasswordForm(EstiloFormularioMixin, SetPasswordForm):
+    pass

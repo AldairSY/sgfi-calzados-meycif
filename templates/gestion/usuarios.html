@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Seguridad</p><h1>Usuarios y roles</h1></div><a class="button primary" href="{% url 'usuario_crear' %}">Nuevo usuario</a></div>
+<section class="panel table-wrap"><table><thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th></th></tr></thead><tbody>
+{% for u in usuarios %}<tr><td>{{ u.username }}</td><td>{{ u.get_full_name|default:"-" }}</td><td>{% if u.is_superuser %}Administrador{% else %}{{ u.groups.first.name|default:"Sin rol" }}{% endif %}</td><td>{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td><td><a class="text-link" href="{% url 'usuario_editar' u.pk %}">Editar</a> · <a class="text-link" href="{% url 'usuario_password' u.pk %}">Clave</a></td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

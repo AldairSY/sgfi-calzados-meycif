@@ -1,4 +1,4 @@
-{% load static %}
+{% load static gestion_extras %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -14,12 +14,21 @@
       <nav>
         <a href="{% url 'dashboard' %}">Inicio</a>
         <a href="{% url 'productos' %}">Productos</a>
-        <a href="{% url 'clientes' %}">Clientes</a>
-        <a href="{% url 'proveedores' %}">Proveedores</a>
-        <a href="{% url 'inventario' %}">Inventario</a>
-        <a href="{% url 'ventas' %}">Ventas</a>
-        <a href="{% url 'reportes' %}">Reportes</a>
+        {% if user|has_role:"Vendedor" or user|has_role:"Administrador" %}
+          <a href="{% url 'clientes' %}">Clientes</a>
+          <a href="{% url 'ventas' %}">Ventas</a>
+        {% endif %}
+        {% if user|has_role:"Almacenero" or user|has_role:"Administrador" %}
+          <a href="{% url 'proveedores' %}">Proveedores</a>
+          <a href="{% url 'inventario' %}">Inventario</a>
+        {% endif %}
+        {% if user|has_role:"Administrador" %}
+          <a href="{% url 'reportes' %}">Reportes</a>
+          <a href="{% url 'usuarios' %}">Usuarios</a>
+          <a href="{% url 'auditoria' %}">Auditoría</a>
+        {% endif %}
       </nav>
+      <span class="user-role">{{ user.username }} · {{ user|role_name }}</span>
       <form method="post" action="{% url 'logout' %}" class="logout">
         {% csrf_token %}
         <button type="submit">Salir</button>

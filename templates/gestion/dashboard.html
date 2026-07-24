@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% load gestion_extras %}
 {% block content %}
 <div class="page-heading">
   <div><p class="eyebrow">Panel principal</p><h1>Operación de Calzados Meycif</h1></div>
-  <a class="button primary" href="{% url 'ventas' %}">Registrar venta</a>
+  {% if user|has_role:"Vendedor" or user|has_role:"Administrador" %}
+    <a class="button primary" href="{% url 'ventas' %}">Registrar venta</a>
+  {% endif %}
 </div>
 <section class="metrics">
   <article><span>Productos</span><strong>{{ productos }}</strong></article>

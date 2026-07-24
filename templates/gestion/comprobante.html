@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel invoice">
+  <div class="invoice-head">
+    <div><p class="eyebrow">Calzados Meycif</p><h1>{{ venta.get_tipo_comprobante_display }}</h1><p>RUC 20601020304<br>Huancayo, Perú</p></div>
+    <div><strong>{{ venta }}</strong><p>{{ venta.fecha|date:"d/m/Y H:i" }}<br>Estado: <span class="{% if venta.estado == 'ANULADA' %}status-anulada{% endif %}">{{ venta.get_estado_display }}</span></p></div>
+  </div>
+  <p><strong>Cliente:</strong> {{ venta.cliente.nombres_razon_social }}<br><strong>Documento:</strong> {{ venta.cliente.numero_documento }}</p>
+  <div class="table-wrap"><table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>
+    {% for d in venta.detalles.all %}<tr><td>{{ d.producto }}</td><td>{{ d.cantidad }}</td><td>S/ {{ d.precio_unitario }}</td><td>S/ {{ d.subtotal }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="invoice-totals"><p>Subtotal: <strong>S/ {{ venta.subtotal }}</strong><br>IGV 18%: <strong>S/ {{ venta.igv }}</strong><br>Total: <strong>S/ {{ venta.total }}</strong></p></div>
+  {% if venta.estado == "ANULADA" %}<p class="status-anulada">ANULADO: {{ venta.motivo_anulacion }}</p>{% endif %}
+  <div class="actions no-print"><a class="button secondary" href="{% url 'ventas' %}">Volver</a>{% if venta.estado != "ANULADA" %}<a class="button secondary" href="{% url 'venta_anular' venta.pk %}">Anular</a>{% endif %}<button class="button primary" onclick="window.print()">Imprimir</button></div>
+</section>
+{% endblock %}

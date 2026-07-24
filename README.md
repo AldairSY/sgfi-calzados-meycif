@@ -14,10 +14,13 @@ versión evaluable del curso se ejecuta mediante `manage.py`.
 
 - Autenticación y sesiones de Django.
 - CRUD de productos, clientes y proveedores.
+- Gestión de usuarios con roles Administrador, Vendedor y Almacenero.
 - Movimientos de inventario protegidos por transacciones.
-- Registro de ventas con precio e IGV calculados en el servidor.
+- Ventas de varios productos con precio e IGV calculados en el servidor.
 - Correlativos de boleta y factura.
+- Comprobantes imprimibles y anulación con reposición automática de stock.
 - Reportes de stock bajo y productos más vendidos.
+- Exportación CSV y registro de auditoría.
 - API JSON de solo lectura para productos y ventas.
 - Factory y Strategy para generar comprobantes.
 - Pruebas automatizadas de autenticación, inventario y ventas.
@@ -35,8 +38,14 @@ python manage.py cargar_demo --password "EligeUnaClaveSegura"
 python manage.py runserver
 ```
 
-Abrir `http://127.0.0.1:8000/` e ingresar con el usuario `admin` y la clave
-elegida en `cargar_demo`.
+Abrir `http://127.0.0.1:8000/`. El comando crea las cuentas `admin`,
+`vendedor` y `almacenero`, todas con la clave elegida en `cargar_demo`.
+
+## Roles
+
+- **Administrador:** acceso total, reportes y administración de Django.
+- **Vendedor:** consulta productos y gestiona clientes y ventas.
+- **Almacenero:** gestiona productos, proveedores y movimientos de inventario.
 
 ## Arquitectura
 

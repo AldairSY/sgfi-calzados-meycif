@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">Módulo de salida</p><h1>Reportes</h1></div><div><a class="button secondary" href="{% url 'api_productos' %}">API productos</a> <a class="button secondary" href="{% url 'api_ventas' %}">API ventas</a></div></div>
+<div class="page-heading"><div><p class="eyebrow">Módulo de salida</p><h1>Reportes</h1></div><div><a class="button secondary" href="{% url 'exportar_ventas_csv' %}">Exportar CSV</a> <a class="button secondary" href="{% url 'api_productos' %}">API productos</a> <a class="button secondary" href="{% url 'api_ventas' %}">API ventas</a></div></div>
 <section class="metrics"><article><span>Ingresos acumulados</span><strong>S/ {{ total_ventas|floatformat:2 }}</strong></article><article><span>Productos por reponer</span><strong>{{ stock_bajo|length }}</strong></article></section>
 <div class="two-columns">
   <section class="panel table-wrap"><h2>Stock bajo</h2><table><thead><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Mínimo</th></tr></thead><tbody>

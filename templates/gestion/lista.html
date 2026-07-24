@@ -3,16 +3,26 @@
 {% block content %}
 <div class="page-heading">
   <div><p class="eyebrow">Módulo de entrada</p><h1>{{ titulo }}</h1></div>
-  <a class="button primary" href="{% url crear_url %}">Nuevo registro</a>
+  {% if titulo != "Productos" or user|has_role:"Almacenero" or user|has_role:"Administrador" %}
+    <a class="button primary" href="{% url crear_url %}">Nuevo registro</a>
+  {% endif %}
 </div>
 <section class="panel table-wrap">
+  <form method="get" class="search-bar">
+    <input type="search" name="q" value="{{ busqueda }}" placeholder="Buscar en {{ titulo|lower }}…">
+    <button class="button secondary" type="submit">Buscar</button>
+  </form>
   <table>
     <thead><tr>{% for campo, etiqueta in columnas %}<th>{{ etiqueta }}</th>{% endfor %}<th>Acciones</th></tr></thead>
     <tbody>
     {% for objeto in objetos %}
       <tr>
         {% for campo, etiqueta in columnas %}<td>{{ objeto|attr:campo }}</td>{% endfor %}
-        <td><a class="text-link" href="{% url editar_url objeto.pk %}">Editar</a></td>
+        <td>
+          {% if titulo != "Productos" or user|has_role:"Almacenero" or user|has_role:"Administrador" %}
+            <a class="text-link" href="{% url editar_url objeto.pk %}">Editar</a>
+          {% else %}Solo lectura{% endif %}
+        </td>
       </tr>
     {% empty %}<tr><td colspan="10">No hay registros.</td></tr>{% endfor %}
     </tbody>

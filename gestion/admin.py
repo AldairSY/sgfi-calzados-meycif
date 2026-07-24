@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cliente, DetalleVenta, MovimientoStock, Producto, Proveedor, Venta
+from .models import Auditoria, Cliente, DetalleVenta, MovimientoStock, Producto, Proveedor, Venta
 
 
 @admin.register(Producto)
@@ -47,3 +47,11 @@ class MovimientoStockAdmin(admin.ModelAdmin):
         "fecha",
     )
     list_filter = ("tipo",)
+
+
+@admin.register(Auditoria)
+class AuditoriaAdmin(admin.ModelAdmin):
+    list_display = ("fecha", "usuario", "modulo", "accion", "descripcion")
+    list_filter = ("modulo", "accion")
+    search_fields = ("usuario__username", "descripcion")
+    readonly_fields = ("usuario", "modulo", "accion", "descripcion", "fecha")

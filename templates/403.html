@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="login-card"><p class="eyebrow">Acceso restringido</p><h1>Permiso denegado</h1><p>Tu rol no tiene autorización para ingresar a este módulo.</p><a class="button primary" href="{% url 'dashboard' %}">Volver al inicio</a></section>
+{% endblock %}
