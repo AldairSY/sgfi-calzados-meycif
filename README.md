@@ -1,66 +1,52 @@
 # Sistema de Gestión de Facturación e Inventario para Calzados Meycif
 
-## Descripción del proyecto
+Proyecto integrador desarrollado con **Python 3.13 y Django 5.2**, aplicando
+Scrum y el patrón técnico solicitado en clase:
 
-El presente proyecto consiste en el desarrollo de un Sistema de Gestión de Facturación e Inventario para la Empresa de Calzados Meycif. El sistema permite administrar productos, controlar el stock, registrar clientes, gestionar ventas, emitir comprobantes y generar reportes para mejorar el control administrativo de la empresa.
+```text
+Models → Forms/Views → Templates/API
+```
 
-## Sprint 0 Goal
+La implementación anterior en Node/Express se conserva como referencia. La
+versión evaluable del curso se ejecuta mediante `manage.py`.
 
-El equipo tiene el repositorio configurado en GitHub, Git Flow activo, estructura base del proyecto creada, documentación inicial preparada y tablero Kanban listo para la planificación del desarrollo.
+## Funcionalidades
 
-## Equipo de trabajo
+- Autenticación y sesiones de Django.
+- CRUD de productos, clientes y proveedores.
+- Movimientos de inventario protegidos por transacciones.
+- Registro de ventas con precio e IGV calculados en el servidor.
+- Correlativos de boleta y factura.
+- Reportes de stock bajo y productos más vendidos.
+- API JSON de solo lectura para productos y ventas.
+- Factory y Strategy para generar comprobantes.
+- Pruebas automatizadas de autenticación, inventario y ventas.
 
-| Rol | Integrante | GitHub |
-|---|---|---|
-| Product Owner | Aldair Sánchez | @AldairSY |
-| Scrum Master | Aldair Sánchez | @AldairSY |
-| Backend Dev | Aldair Sánchez | @AldairSY |
-| Frontend Dev | Aldair Sánchez | @AldairSY |
-| QA / DevOps | Aldair Sánchez | @AldairSY |
+## Puesta en marcha
 
-## Stack Tecnológico
+En Windows:
 
-- Node.js
-- Express.js
-- HTML5
-- CSS3
-- JavaScript
-- JSON como almacenamiento inicial
-- Git y GitHub
-- Git Flow
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py cargar_demo --password "EligeUnaClaveSegura"
+python manage.py runserver
+```
 
-## Módulos principales
+Abrir `http://127.0.0.1:8000/` e ingresar con el usuario `admin` y la clave
+elegida en `cargar_demo`.
 
-- Gestión de usuarios
-- Gestión de productos
-- Gestión de inventario
-- Gestión de clientes
-- Gestión de proveedores
-- Gestión de ventas
-- Gestión de facturación
-- Reportes del sistema
+## Arquitectura
 
-## Estructura del proyecto
-
-```txt
-sgfi-calzados-meycif/
-├── public/
-│   ├── index.html
-│   ├── app.js
-│   ├── styles.css
-│   └── modules/
-│       ├── auth.js
-│       ├── billing.js
-│       ├── customers.js
-│       ├── dashboard.js
-│       ├── products.js
-│       ├── reports.js
-│       ├── sales.js
-│       ├── stock.js
-│       ├── suppliers.js
-│       └── users.js
-├── database.js
-├── database.json
-├── package.json
-├── package-lock.json
-└── server.js
+```text
+config/                  Configuración y rutas principales
+gestion/models.py        Modelos y relaciones de datos
+gestion/forms.py         Formularios y validaciones
+gestion/views.py         Vistas HTML y API de solo lectura
+gestion/services.py      Casos de uso transaccionales y patrones
+templates/               Interfaz Django
+static/                  Estilos
+gestion/tests.py         Pruebas automatizadas
+```

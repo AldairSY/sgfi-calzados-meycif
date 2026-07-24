@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Calzados Meycif{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/meycif.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}">MEYCIF <span>Gestión comercial</span></a>
+    {% if user.is_authenticated %}
+      <nav>
+        <a href="{% url 'dashboard' %}">Inicio</a>
+        <a href="{% url 'productos' %}">Productos</a>
+        <a href="{% url 'clientes' %}">Clientes</a>
+        <a href="{% url 'proveedores' %}">Proveedores</a>
+        <a href="{% url 'inventario' %}">Inventario</a>
+        <a href="{% url 'ventas' %}">Ventas</a>
+        <a href="{% url 'reportes' %}">Reportes</a>
+      </nav>
+      <form method="post" action="{% url 'logout' %}" class="logout">
+        {% csrf_token %}
+        <button type="submit">Salir</button>
+      </form>
+    {% endif %}
+  </header>
+  <main class="container">
+    {% for message in messages %}
+      <div class="message">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

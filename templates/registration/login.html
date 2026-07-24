@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Ingresar | Meycif{% endblock %}
+{% block content %}
+<section class="login-card">
+  <p class="eyebrow">Sistema de facturación e inventario</p>
+  <h1>Bienvenido a Meycif</h1>
+  <p>Ingrese con una cuenta autorizada para administrar la operación.</p>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if form.errors %}<p class="error">Usuario o contraseña incorrectos.</p>{% endif %}
+    <button class="button primary" type="submit">Ingresar</button>
+  </form>
+</section>
+{% endblock %}

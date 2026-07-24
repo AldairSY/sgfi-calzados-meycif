@@ -1,6 +1,10 @@
 node_modules/
+.venv/
+__pycache__/
+*.py[cod]
 .env
 meycif.db
+db.sqlite3
 database.json
 backups/
 sgfi-calzados-meycif/

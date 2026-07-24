@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Formulario Django</p><h1>{{ titulo }}</h1></div></div>
+<section class="panel form-panel">
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <a class="button secondary" href="{{ volver }}">Cancelar</a>
+      <button class="button primary" type="submit">Guardar</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
