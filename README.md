@@ -1,58 +1,40 @@
-# Sistema de Gestión de Facturación e Inventario - Calzados Meycif (MeycifPro)
+# Sistema de Gestión de Facturación e Inventario - Calzados Meycif
 
-**Universidad Peruana Los Andes - Facultad de Ingeniería**  
-**Escuela Profesional de Ingeniería de Sistemas y Computación**  
-**Asignatura:** Construcción de Software (Ciclo IX)  
-**Docente:** Mg. Rafael Edwin Gordillo Flores  
+Proyecto integrador de la Universidad Peruana Los Andes para el curso
+Construcción de Software, desarrollado con Python 3.13 y Django 5.2.
 
-### Equipo de Ingeniería: PROYECTA FUTURO
-* **Enciso Carbajal Jhon Ever** (R01057C) - *Scrum Master & Developer*
-* **Hinostroza Canchumanya Luis Daniel** (R01070F) - *Product Owner*
-* **Sanchez Romero Aldair Ulises** (R01133A) - *Developer & Frontend Specialist*
+## Equipo PROYECTA FUTURO
 
----
+- Enciso Carbajal Jhon Ever - Scrum Master y desarrollador.
+- Hinostroza Canchumanya Luis Daniel - Product Owner.
+- Sanchez Romero Aldair Ulises - Desarrollador y responsable frontend.
 
-## Stack Tecnológico
-* **Lenguaje:** Python 3.13
-* **Framework Web:** Django 5.x / 5.2
-* **Base de Datos:** SQLite3
-* **Frontend:** HTML5, CSS3, Bootstrap 5
-* **Librerías Adicionales:** ReportLab (Exportación PDF), Django REST Framework
+## Stack técnico
 
----
-
-## Instrucciones de Ejecución Local
-```bash
-# 1. Clonar el repositorio
-git clone <URL_DE_TU_REPOSITORIO>
-
-# 2. Instalar dependencias
-pip install -r requirements.txt
-
-# 3. Aplicar migraciones
-python manage.py migrate
-
-# 4. Iniciar el servidor
-python manage.py runserver
+- Python 3.13.14.
+- Django 5.2.16.
+- SQLite.
+- HTML5 y CSS3.
+- Arquitectura `Models → Forms/Views → Templates/API`.
 
 ## Funcionalidades
 
 - Autenticación y sesiones de Django.
 - CRUD de productos, clientes y proveedores.
-- Gestión de usuarios con roles Administrador, Vendedor y Almacenero.
+- Roles Administrador, Vendedor y Almacenero.
 - Movimientos de inventario protegidos por transacciones.
 - Ventas de varios productos con precio e IGV calculados en el servidor.
 - Correlativos de boleta y factura.
-- Comprobantes imprimibles y anulación con reposición automática de stock.
+- Comprobantes imprimibles.
+- Anulación de ventas con reposición automática de stock.
+- Gestión de usuarios y contraseñas.
 - Reportes de stock bajo y productos más vendidos.
 - Exportación CSV y registro de auditoría.
 - API JSON de solo lectura para productos y ventas.
-- Factory y Strategy para generar comprobantes.
-- Pruebas automatizadas de autenticación, inventario y ventas.
+- Patrones Factory y Strategy para comprobantes.
+- Pruebas automatizadas de autenticación, permisos, inventario y ventas.
 
-## Puesta en marcha
-
-En Windows:
+## Ejecución local
 
 ```powershell
 python -m venv .venv
@@ -64,13 +46,13 @@ python manage.py runserver
 ```
 
 Abrir `http://127.0.0.1:8000/`. El comando crea las cuentas `admin`,
-`vendedor` y `almacenero`, todas con la clave elegida en `cargar_demo`.
+`vendedor` y `almacenero`, todas con la clave elegida.
 
-## Roles
+## Permisos
 
-- **Administrador:** acceso total, reportes y administración de Django.
+- **Administrador:** acceso total, usuarios, auditoría y reportes.
 - **Vendedor:** consulta productos y gestiona clientes y ventas.
-- **Almacenero:** gestiona productos, proveedores y movimientos de inventario.
+- **Almacenero:** gestiona productos, proveedores e inventario.
 
 ## Arquitectura
 
@@ -79,7 +61,8 @@ config/                  Configuración y rutas principales
 gestion/models.py        Modelos y relaciones de datos
 gestion/forms.py         Formularios y validaciones
 gestion/views.py         Vistas HTML y API de solo lectura
-gestion/services.py      Casos de uso transaccionales y patrones
+gestion/services.py      Transacciones y patrones de diseño
+gestion/permissions.py   Autorización basada en roles
 templates/               Interfaz Django
 static/                  Estilos
 gestion/tests.py         Pruebas automatizadas
